@@ -93,6 +93,7 @@ class Cacher(object):
         """
         self.close()
 
+
 def MemCacher(name, capacity=0, force_init=False, serializer=marshal):
     """
     Add an prefix '/dev/shm/' to `name`, so that the file is saved only in memory
@@ -104,7 +105,7 @@ def MemCacher(name, capacity=0, force_init=False, serializer=marshal):
 if __name__ == "__main__":
     #test cases
     ht = MemCacher('test.Cacher', 1024, True)
-    print 'fd:', ht.ht.fd
+    print('fd:', ht.ht.fd)
 
     #set
     ht['a'] = '1'
@@ -113,33 +114,33 @@ if __name__ == "__main__":
     ht['c'] = c
 
     #get
-    print ht['b'] == 2
-    print ht['c'] == c
-    print ht.get('c') == c
-    print ht.get('d') == None
+    print(ht['b'] == 2)
+    print(ht['c'] == c)
+    print(ht.get('c') == c)
+    print(ht.get('d') == None)
     try:
         ht['d']
-        print False
+        print(False)
     except:
-        print True
+        print(True)
 
     #contains
-    print ('c' in ht) == True
-    print ('d' in ht) == False
+    print(('c' in ht) == True)
+    print(('d' in ht) == False)
 
     #del
     del ht['c']
-    print ht.get('c') == None
+    print(ht.get('c') == None)
     try:
         del ht['d']
-        print 'del:', False
+        print('del:', False)
     except:
-        print True
+        print(True)
 
     #update & to_dict & foreach
     dumps = marshal.dumps
     ht['c'] = c
-    print ht.to_dict() == {'a': '1', 'b': 2, 'c': c}
+    print(ht.to_dict() == {'a': '1', 'b': 2, 'c': c})
 
     def cb(key, value):
         global s
@@ -147,27 +148,27 @@ if __name__ == "__main__":
 
     s = ''
     ht.foreach(cb)
-    print s == 'a1b2c' + str(c)
+    print(s == 'a1b2c' + str(c))
 
     ht.update({'a': 'x', 'b': 1000})
 
     s = ''
     ht.foreach(cb)
-    print s == 'axb1000c' + str(c)
+    print(s == 'axb1000c' + str(c))
 
-    print ht.to_dict() == {'a': 'x', 'b': 1000, 'c': c}
+    print(ht.to_dict() == {'a': 'x', 'b': 1000, 'c': c})
 
     #close
     ht.close()
     try:
         ht['a']
-        print False
+        print(False)
     except:
-        print True
+        print(True)
 
     #write_back
     ht = MemCacher('test.Cacher', 1024, True)
-    print 'fd:', ht.ht.fd
+    print('fd:', ht.ht.fd)
     ht['a'] = 1
     ht.write_back()
     ht['b'] = 2
@@ -176,13 +177,13 @@ if __name__ == "__main__":
     ht.close() #write_back() is called in close() when not debugging
 
     ht = MemCacher('test.Cacher', 1024, False)
-    print 'fd:', ht.ht.fd
-    print ht['a'] == 1
+    print('fd:', ht.ht.fd)
+    print(ht['a'] == 1)
     try:
-        print ht['b']
-        print False
+        print(ht['b'])
+        print(False)
     except:
-        print True
+        print(True)
     ht.close()
 
     #simple performance test
@@ -196,11 +197,11 @@ if __name__ == "__main__":
         s = '%064d' % i
         ht[s] = s
     end_time = time.time()
-    print capacity / (end_time - begin_time), 'iops @ set / no write_back '
+    print(capacity / (end_time - begin_time), 'iops @ set / no write_back ')
 
     ht.write_back()
     end_time = time.time()
-    print capacity / (end_time - begin_time), 'iops @ set / after write_back '
+    print(capacity / (end_time - begin_time), 'iops @ set / after write_back ')
 
     ht.d = {}
     begin_time = time.time()
@@ -209,7 +210,7 @@ if __name__ == "__main__":
         if s != ht[s]:
             raise Exception(s)
     end_time = time.time()
-    print capacity / (end_time - begin_time), 'iops @ get / no cache '
+    print(capacity / (end_time - begin_time), 'iops @ get / no cache ')
 
     begin_time = time.time()
     for i in range(capacity):
@@ -217,6 +218,6 @@ if __name__ == "__main__":
         if s != ht[s]:
             raise Exception(s)
     end_time = time.time()
-    print capacity / (end_time - begin_time), 'iops @ get / all cached '
+    print(capacity / (end_time - begin_time), 'iops @ get / all cached ')
 
     ht.close()

@@ -13,7 +13,7 @@ for i in range(capacity):
     s = '%064d' % i
     shmht.setval(fd, s, s)
 end_time = time.time()
-print capacity / (end_time - begin_time), 'iops @ set'
+print(capacity / (end_time - begin_time), 'iops @ set')
 
 begin_timend_time = time.time()
 for i in range(capacity):
@@ -21,6 +21,6 @@ for i in range(capacity):
     if s != shmht.getval(fd, s):
         raise Exception(s)
 end_time = time.time()
-print capacity / (end_time - begin_time), 'iops @ get'
+print(capacity / (end_time - begin_time), 'iops @ get')
 
 shmht.close(fd)

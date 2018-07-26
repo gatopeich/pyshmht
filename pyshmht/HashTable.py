@@ -97,56 +97,56 @@ if __name__ == "__main__":
     ht.setobj('c', c)
 
     #get
-    print ht['b'] == '2'
-    print ht['c'] == marshal.dumps(c)
-    print ht.getobj('c') == c
-    print ht.get('d') == None
+    print(ht['b'] == '2')
+    print(ht['c'] == marshal.dumps(c))
+    print(ht.getobj('c') == c)
+    print(ht.get('d') == None)
     try:
         ht['d']
-        print False
+        print(False)
     except:
-        print True
+        print(True)
 
     #contains
-    print ('c' in ht) == True
-    print ('d' in ht) == False
+    print(('c' in ht) == True)
+    print(('d' in ht) == False)
 
     #del
     del ht['c']
-    print ht.get('c') == None
+    print(ht.get('c') == None)
     try:
         del ht['d']
-        print 'del:', False
+        print('del:', False)
     except:
-        print True
+        print(True)
 
     #update & to_dict & foreach
     ht.setobj('c', c)
-    print ht.to_dict() == {'a': '1', 'b': '2', 'c': dumps(c)}
+    print(ht.to_dict() == {'a': '1', 'b': '2', 'c': dumps(c)})
 
     s = ''
     def cb(key, value):
         global s
         s += key + str(value)
     ht.foreach(cb)
-    print s == 'a1b2c' + dumps(c)
+    print(s == 'a1b2c' + dumps(c))
 
     ht.update({'a': 1, 'b': 2}, serialize=True)
 
     s = ''
     ht.foreach(cb, unserialize=True)
-    print s == 'a1b2c' + str(c)
+    print(s == 'a1b2c' + str(c))
 
-    print ht.to_dict() == {'a':dumps(1), 'b':dumps(2), 'c':dumps(c)}
-    print ht.to_dict(unserialize=True) == {'a': 1, 'b': 2, 'c': c}
+    print(ht.to_dict() == {'a':dumps(1), 'b':dumps(2), 'c':dumps(c)})
+    print(ht.to_dict(unserialize=True) == {'a': 1, 'b': 2, 'c': c})
 
     #close
     ht.close()
     try:
         ht['a']
-        print False
+        print(False)
     except:
-        print True
+        print(True)
 
     #simple performance test
     import time
@@ -161,7 +161,7 @@ if __name__ == "__main__":
         s = '%064d' % i
         ht[s] = s
     end_time = time.time()
-    print capacity / (end_time - begin_time), 'iops @ set'
+    print(capacity / (end_time - begin_time), 'iops @ set')
 
     begin_timend_time = time.time()
     for i in range(capacity):
@@ -169,7 +169,7 @@ if __name__ == "__main__":
         if s != ht[s]:
             raise Exception(s)
     end_time = time.time()
-    print capacity / (end_time - begin_time), 'iops @ get'
+    print(capacity / (end_time - begin_time), 'iops @ get')
 
     ht.close()
 

@@ -30,7 +30,20 @@ static PyObject * shmht_remove(PyObject *self, PyObject *args);
 static PyObject * shmht_foreach(PyObject *self, PyObject *args);
 
 static PyObject *shmht_error; 
-PyMODINIT_FUNC initshmht(void);
+PyMODINIT_FUNC PyInit_shmht(void);
+
+struct module_state {
+    PyObject *error;
+};
+
+#define GETSTATE(m) ((struct module_state*)PyModule_GetState(m))
+
+static PyObject *
+error_out(PyObject *m) {
+    struct module_state *st = GETSTATE(m);
+    PyErr_SetString(st->error, "shmht error");
+    return NULL;
+}
 
 static PyMethodDef shmht_methods[] = {
     {"open", shmht_open, METH_VARARGS, "create a shared memory hash table"},
@@ -39,20 +52,50 @@ static PyMethodDef shmht_methods[] = {
     {"setval", shmht_setval, METH_VARARGS, ""},
     {"remove", shmht_remove, METH_VARARGS, ""},
     {"foreach", shmht_foreach, METH_VARARGS, ""},
+    {"error_out", (PyCFunction)error_out, METH_NOARGS, NULL},
     {NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC initshmht(void)
+
+
+static int shmht_traverse(PyObject *m, visitproc visit, void *arg) {
+    Py_VISIT(GETSTATE(m)->error);
+    return 0;
+}
+
+static int shmht_clear(PyObject *m) {
+    Py_CLEAR(GETSTATE(m)->error);
+    return 0;
+}
+
+
+static struct PyModuleDef moduledef = {
+    PyModuleDef_HEAD_INIT,
+    "shmht",
+    NULL,
+    sizeof(struct module_state),
+    shmht_methods,
+    NULL,
+    shmht_traverse,
+    shmht_clear,
+    NULL
+};
+
+PyObject * PyInit_shmht(void)
 {
-    PyObject *m = Py_InitModule("shmht", shmht_methods);
-    if (m == NULL)
+//    PyObject *module = PyModule_Create("shmht", shmht_methods);
+    PyObject *module = PyModule_Create(&moduledef);
+
+    if (module == NULL)
         return;
 
     shmht_error = PyErr_NewException("shmht.error", NULL, NULL);
     Py_INCREF(shmht_error);
-    PyModule_AddObject(m, "error", shmht_error);
+    PyModule_AddObject(module, "error", shmht_error);
 
     bzero(ht_map, sizeof(ht_map));
+
+    return module;
 }
 
 static PyObject * shmht_open(PyObject *self, PyObject *args)
@@ -143,7 +186,7 @@ static PyObject * shmht_open(PyObject *self, PyObject *args)
     ht_map[ht_idx].mem_size = mem_size;
     ht_map[ht_idx].ht       = ht;
 
-    return PyInt_FromLong(ht_idx);
+    return PyLong_FromLong(ht_idx);
 
 create_failed:
     if (fd >= 0)
@@ -202,7 +245,7 @@ static PyObject * shmht_getval(PyObject *self, PyObject *args)
     if (value == NULL) {
         Py_RETURN_NONE;
     }
-    return PyString_FromStringAndSize(value->str, value->size);
+    return PyBytes_FromStringAndSize(value->str, value->size);
 }
 
 static PyObject * shmht_setval(PyObject *self, PyObject *args)
@@ -268,9 +311,10 @@ static PyObject * shmht_foreach(PyObject *self, PyObject *args)
 
     hashtable *ht = ht_map[idx].ht;
     ht_iter *iter = ht_get_iterator(ht);
+
     while (ht_iter_next(iter)) {
         ht_str *key = iter->key, *value = iter->value;
-        PyObject *arglist = Py_BuildValue("(s#s#)", key->str, key->size, value->str, value->size);
+        PyObject *arglist = Py_BuildValue("(y#y#)", key->str, key->size, value->str, value->size);
         PyEval_CallObject(cb, arglist);
         Py_DECREF(arglist);
     }
