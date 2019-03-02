@@ -71,7 +71,7 @@ class HashTable(object):
     def to_dict(self, unserialize=False):
         d = {}
         def insert(k,v):
-            d[k] = v
+            d[k.decode()] = v
         self.foreach(insert, unserialize)
         return d
 
@@ -97,56 +97,59 @@ if __name__ == "__main__":
     ht.setobj('c', c)
 
     #get
-    print(ht['b'] == '2')
-    print(ht['c'] == marshal.dumps(c))
-    print(ht.getobj('c') == c)
-    print(ht.get('d') == None)
+    assert ht['b'] == b'2'
+    assert ht['c'] == marshal.dumps(c)
+    assert ht.getobj('c') == c
+    assert ht.get('d') is None
     try:
         ht['d']
-        print(False)
-    except:
-        print(True)
+        assert False
+    except: pass
 
     #contains
-    print(('c' in ht) == True)
-    print(('d' in ht) == False)
+    assert 'c' in ht
+    assert 'd' not in ht
 
     #del
     del ht['c']
-    print(ht.get('c') == None)
+    assert ht.get('c') is None
     try:
         del ht['d']
-        print('del:', False)
-    except:
-        print(True)
+        assert False
+    except: pass
 
     #update & to_dict & foreach
     ht.setobj('c', c)
-    print(ht.to_dict() == {'a': '1', 'b': '2', 'c': dumps(c)})
+    print(repr(ht.to_dict()))
+    assert ht.to_dict() == {'a': b'1', 'b': b'2', 'c': dumps(c)}
 
-    s = ''
+    s = b''
     def cb(key, value):
         global s
-        s += key + str(value)
+        s += key + value
+        print("key: %r, value: %r, s: %r" % (key,value, s))
     ht.foreach(cb)
-    print(s == 'a1b2c' + dumps(c))
+    print(s)
+    assert s == b'a1b2c' + dumps(c)
 
-    ht.update({'a': 1, 'b': 2}, serialize=True)
-
+    ht.update({'a': 1, 'b': 2, 'c': c}, serialize=True)
     s = ''
-    ht.foreach(cb, unserialize=True)
-    print(s == 'a1b2c' + str(c))
+    def cb2(key, value):
+        global s
+        s += key.decode() + str(value)
+        print("key: %r, value: %r, s: %r" % (key,value, s))
+    ht.foreach(cb2, unserialize=True)
+    assert s == 'a1b2c' + str(c)
 
-    print(ht.to_dict() == {'a':dumps(1), 'b':dumps(2), 'c':dumps(c)})
-    print(ht.to_dict(unserialize=True) == {'a': 1, 'b': 2, 'c': c})
+    assert ht.to_dict() == {'a':dumps(1), 'b':dumps(2), 'c':dumps(c)}
+    assert ht.to_dict(unserialize=True) == {'a': 1, 'b': 2, 'c': c}
 
     #close
     ht.close()
     try:
         ht['a']
-        print(False)
-    except:
-        print(True)
+        assert False
+    except: pass
 
     #simple performance test
     import time
@@ -158,18 +161,16 @@ if __name__ == "__main__":
 
     begin_time = time.time()
     for i in range(capacity):
-        s = '%064d' % i
+        s = str(i)
         ht[s] = s
     end_time = time.time()
     print(capacity / (end_time - begin_time), 'iops @ set')
 
     begin_timend_time = time.time()
     for i in range(capacity):
-        s = '%064d' % i
-        if s != ht[s]:
-            raise Exception(s)
+        s = str(i)
+        assert s == ht[s].decode()
     end_time = time.time()
     print(capacity / (end_time - begin_time), 'iops @ get')
 
     ht.close()
-

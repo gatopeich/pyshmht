@@ -2,10 +2,9 @@
 import os
 from distutils.core import setup, Extension
 
-#os.putenv("CFLAGS", "-g")
-
 shmht = Extension('shmht',
-        sources = ['shmht.c', 'hashtable.c']
+    sources = ['shmht.c', 'hashtable.c'],
+    extra_compile_args = '-g3 -Wall -Werror -O3 -march=native'.split(),
 )
 
 setup(

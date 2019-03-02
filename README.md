@@ -3,6 +3,8 @@ pyshmht
 
 **Sharing memory based** Hash Table extension for Python
 
+Python 3.7 port by gatopeich
+
 For examples, see test cases in python files (pyshmht/Cacher.py, pyshmht/HashTable.py), where you can find performance tests as well.
 
 Performance

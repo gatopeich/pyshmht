@@ -83,11 +83,7 @@ static struct PyModuleDef moduledef = {
 
 PyObject * PyInit_shmht(void)
 {
-//    PyObject *module = PyModule_Create("shmht", shmht_methods);
     PyObject *module = PyModule_Create(&moduledef);
-
-    if (module == NULL)
-        return;
 
     shmht_error = PyErr_NewException("shmht.error", NULL, NULL);
     Py_INCREF(shmht_error);
