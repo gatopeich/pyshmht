@@ -2,7 +2,7 @@
 #coding: utf-8
 
 import marshal
-import HashTable
+from  .HashTable import HashTable
 
 _debug = False
 

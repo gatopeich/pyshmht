@@ -29,7 +29,7 @@ static PyObject * shmht_setval(PyObject *self, PyObject *args);
 static PyObject * shmht_remove(PyObject *self, PyObject *args);
 static PyObject * shmht_foreach(PyObject *self, PyObject *args);
 
-static PyObject *shmht_error; 
+static PyObject *shmht_error;
 PyMODINIT_FUNC PyInit_shmht(void);
 
 struct module_state {
@@ -119,7 +119,7 @@ static PyObject * shmht_open(PyObject *self, PyObject *args)
 
     if (force_init == 0) { //try to load from existing shmht
         mem_size = sizeof(hashtable);
-        if (buf.st_size >= sizeof(hashtable)) { //may be valid
+        if ((size_t)buf.st_size >= sizeof(hashtable)) { //may be valid
             ht = mmap(NULL, sizeof(hashtable), PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
             if (ht == MAP_FAILED) {
                 PyErr_Format(shmht_error, "mmap failed, map_size=sizeof(hashtable)=%lu: [%d] %s",
@@ -145,8 +145,8 @@ static PyObject * shmht_open(PyObject *self, PyObject *args)
     }
 
     mem_size = ht_memory_size(capacity);
-    
-    if (buf.st_size < mem_size) {
+
+    if ((size_t)buf.st_size < mem_size) {
         if (lseek64(fd, mem_size - 1, SEEK_SET) == -1) {
             PyErr_Format(shmht_error, "lseek64 failed: [%d] %s", errno, strerror(errno));
             goto create_failed;
