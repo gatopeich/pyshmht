@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import os
-from distutils.core import setup, Extension
-
+#from distutils.core import setup, Extension
+from setuptools import setup, Extension
 shmht = Extension('shmht',
     sources = ['shmht.c', 'hashtable.c'],
     extra_compile_args = '-g3 -Wall -Werror -O3 -march=native'.split(),
