@@ -175,7 +175,7 @@ int ht_set(hashtable *ht, const char *key, u_int32 key_size, const char *value, 
 
     if (ht->capacity * max_load_factor < ht->size) {
         //hash table is over loaded
-        fprintf(stderr, "hash table is over loaded, capacity=%lu, size=%lu\n", ht->capacity, ht->size);
+        fprintf(stderr, "hash table is over loaded, capacity=%zu, size=%zu\n", ht->capacity, ht->size);
         return False;
     }
 
